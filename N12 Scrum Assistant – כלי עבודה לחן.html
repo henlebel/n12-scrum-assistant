@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N12 Scrum Assistant</title>
+<style>
+  :root {
+    --brand: #DB0000;
+    --brand-light: #fdeaea;
+    --brand-mid: #e84040;
+    --surface: #ffffff;
+    --surface-1: #f8f9fb;
+    --surface-2: #f1f4f9;
+    --border: #e2e7ef;
+    --border-strong: #c8d3e8;
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --success: #16a34a;
+    --success-bg: #dcfce7;
+    --warning: #b45309;
+    --warning-bg: #fef3c7;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: var(--surface-1);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    background: var(--brand);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .app-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .app-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-right: auto;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .nav-btn {
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    white-space: nowrap;
+    direction: rtl;
+  }
+
+  .nav-btn:hover { background: var(--surface); color: var(--text); }
+  .nav-btn.active {
+    background: var(--surface);
+    color: var(--brand);
+    box-shadow: var(--shadow);
+    font-weight: 600;
+  }
+
+  .main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 20px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  textarea, input[type="text"], select {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface);
+    transition: border-color 0.15s;
+    direction: rtl;
+    resize: vertical;
+    outline: none;
+  }
+
+  textarea:focus, input[type="text"]:focus, select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(219,0,0,0.12);
+  }
+
+  textarea { min-height: 160px; }
+
+  select { cursor: pointer; }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .type-chip {
+    padding: 10px 8px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface);
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .type-chip:hover { border-color: var(--brand-mid); color: var(--brand); background: var(--brand-light); }
+  .type-chip.selected { border-color: var(--brand); color: var(--brand); background: var(--brand-light); font-weight: 600; }
+
+  .type-chip .chip-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .output-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .output-chip {
+    padding: 8px 6px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface);
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .output-chip:hover { border-color: var(--brand-mid); color: var(--brand); }
+  .output-chip.selected { border-color: var(--brand); color: var(--brand); background: var(--brand-light); font-weight: 600; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--brand);
+    color: white;
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .btn-primary:hover { background: #b30000; }
+  .btn-primary:active { transform: scale(0.99); }
+
+  .btn-secondary {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+
+  .btn-secondary:hover { background: var(--border); }
+
+  .result-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    direction: rtl;
+    min-height: 100px;
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { background: var(--brand-light); border-color: var(--brand-mid); color: var(--brand); }
+  .copy-btn.copied { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-blue { background: var(--brand-light); color: var(--brand); }
+  .badge-green { background: var(--success-bg); color: var(--success); }
+
+  .loading-state {
+    display: none;
+    text-align: center;
+    padding: 32px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .loading-state .spinner-big {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border-strong);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  .error-msg {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .field-row { margin-bottom: 14px; }
+
+  .participants-input {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .action-items-list {
+    list-style: none;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .action-item:last-child { border-bottom: none; }
+
+  .action-item-num {
+    width: 22px;
+    height: 22px;
+    background: var(--brand-light);
+    color: var(--brand);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .action-item-text { flex: 1; font-size: 14px; }
+  .action-item-owner { font-size: 12px; color: var(--brand); font-weight: 600; margin-top: 2px; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+    gap: 0;
+  }
+
+  .tab {
+    padding: 10px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--brand); }
+  .tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+  .sub-panel { display: none; }
+  .sub-panel.active { display: block; }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--brand-light);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--brand);
+    margin-bottom: 16px;
+  }
+
+  .info-row svg { flex-shrink: 0; }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .team-member {
+    padding: 8px 10px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface);
+    text-align: right;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .team-member:hover { border-color: var(--brand-mid); color: var(--brand); }
+  .team-member.selected { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+  .team-member .member-role { font-size: 10px; color: var(--text-muted); font-weight: 400; display: block; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  .platform-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .platform-chip {
+    padding: 5px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface);
+    transition: all 0.15s;
+  }
+
+  .platform-chip:hover { border-color: var(--brand-mid); }
+  .platform-chip.selected { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+
+  @media (max-width: 640px) {
+    .nav { display: none; }
+    .output-grid { grid-template-columns: repeat(2, 1fr); }
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .mobile-nav {
+    display: none;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 640px) { .mobile-nav { display: flex; } }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">N12</div>
+  <div>
+    <div class="app-title">Scrum Assistant</div>
+    <div class="app-subtitle">כלי עבודה – חן</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchPanel('summary', this)">📝 סיכום פגישה</button>
+    <button class="nav-btn" onclick="switchPanel('actions', this)">✅ Action Items</button>
+    <button class="nav-btn" onclick="switchPanel('release', this)">🚀 Release Notes</button>
+  </nav>
+</header>
+
+<div class="mobile-nav">
+  <button class="nav-btn active" onclick="switchPanel('summary', this)">📝 סיכום פגישה</button>
+  <button class="nav-btn" onclick="switchPanel('actions', this)">✅ Action Items</button>
+  <button class="nav-btn" onclick="switchPanel('release', this)">🚀 Release Notes</button>
+</div>
+
+<main class="main">
+
+  <!-- PANEL: סיכום פגישה -->
+  <div id="panel-summary" class="panel active">
+    <div class="section-title">סיכום פגישה חכם</div>
+    <div class="section-desc">הדביקי תמלול או תיאור הפגישה, בחרי סוג ופורמט פלט – וקבלי סיכום מוכן.</div>
+
+    <div class="card">
+      <div class="card-title">סוג הפגישה</div>
+      <div class="type-grid">
+        <div class="type-chip selected" onclick="selectType(this, 'daily')"><span class="chip-icon">☀️</span>Daily</div>
+        <div class="type-chip" onclick="selectType(this, 'planning')"><span class="chip-icon">📅</span>Planning</div>
+        <div class="type-chip" onclick="selectType(this, 'retro')"><span class="chip-icon">🔄</span>Retrospective</div>
+        <div class="type-chip" onclick="selectType(this, 'grooming')"><span class="chip-icon">🔍</span>Grooming</div>
+        <div class="type-chip" onclick="selectType(this, 'technical')"><span class="chip-icon">⚙️</span>סשן טכני</div>
+        <div class="type-chip" onclick="selectType(this, 'other')"><span class="chip-icon">💬</span>אחר</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">פורמט פלט</div>
+      <div class="output-grid">
+        <div class="output-chip selected" onclick="selectOutput(this, 'slack')">Slack 💬</div>
+        <div class="output-chip" onclick="selectOutput(this, 'email')">מייל 📧</div>
+        <div class="output-chip" onclick="selectOutput(this, 'confluence')">Confluence 📄</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="field-row">
+        <label>תמלול / תיאור הפגישה</label>
+        <textarea id="summary-input" placeholder="הדביקי כאן את התמלול, פתקי הפגישה, או תיאור קצר של מה שקרה..."></textarea>
+      </div>
+      <div class="field-row">
+        <label style="display:flex; align-items:center; gap:8px;">
+          הקלטת הפגישה (אופציונלי)
+          <span style="font-size:11px; font-weight:500; background:#f0f4ff; color:#6b7280; padding:2px 8px; border-radius:10px; border:1px solid #e2e7ef;">בקרוב</span>
+        </label>
+        <label id="recording-upload-label" style="display:flex; align-items:center; gap:12px; border:1.5px dashed var(--border-strong); border-radius:var(--radius-sm); padding:14px 16px; cursor:pointer; color:var(--text-secondary); font-size:13px; background:var(--surface-1); transition:all 0.15s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--border-strong)'">
+          <span style="font-size:22px;">🎙️</span>
+          <div>
+            <div id="recording-label-text" style="font-weight:500; color:var(--text-secondary);">העלי קובץ הקלטה (MP4, MP3, M4A, WAV)</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">כרגע התמלול הוא הבסיס לסיכום – תמיכה ישירה בהקלטה תתווסף בעתיד</div>
+          </div>
+          <input type="file" id="recording-input" accept=".mp4,.mp3,.m4a,.wav,.webm" style="display:none;" onchange="handleRecordingFile(this)">
+        </label>
+        <div id="recording-preview" style="display:none; margin-top:8px; font-size:12px; padding:8px 12px; background:var(--surface-2); border-radius:var(--radius-sm); color:var(--text-secondary); display:flex; align-items:center; gap:8px;"></div>
+      </div>
+      <div class="field-row">
+        <label>משתתפים שהיו בפגישה (בחרי מהצוות)</label>
+        <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">צוות N12</div>
+        <div class="team-grid" id="participants-grid">
+          <div class="team-member" onclick="toggleMember(this)">גוון <span class="member-role">Product Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">עדי <span class="member-role">Jr. Product Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">ספיר <span class="member-role">QA Engineer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">ענבר <span class="member-role">iOS Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">וסקו <span class="member-role">Android Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אנסטסיה <span class="member-role">Backend Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אירית <span class="member-role">Frontend Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">יוסי <span class="member-role">Frontend Developer</span></div>
+        </div>
+        <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:12px; margin-bottom:6px;">גורמים נוספים</div>
+        <div class="team-grid">
+          <div class="team-member" onclick="toggleMember(this)">שי <span class="member-role">Head of Tech Operations</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אלה <span class="member-role">R&D Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">עמרי <span class="member-role">Mobile Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">יוליה <span class="member-role">Frontend Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אנדריי <span class="member-role">Backend Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">רובי <span class="member-role">QA Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אריה <span class="member-role">UX/UI Designer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">קרולין <span class="member-role">CMS Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">מיטל <span class="member-role">UX Lead</span></div>
+          <div class="team-member" onclick="toggleMember(this)">נטע <span class="member-role">UX Designer</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">אפיון לעיון (אופציונלי)</div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">אם ההחלטות בפגישה קשורות לאפיון קיים – הוסיפי אותו כדי שהסיכום יתייחס אליו</div>
+      <div class="tabs" style="margin-bottom:14px;" id="spec-tabs">
+        <div class="tab active" onclick="switchSpecTab(this,'text')">הדבקת טקסט</div>
+        <div class="tab" onclick="switchSpecTab(this,'file')">העלאת קובץ</div>
+        <div class="tab" onclick="switchSpecTab(this,'link')">קישור</div>
+      </div>
+      <div id="spec-text-panel">
+        <textarea id="spec-text-input" placeholder="הדביקי כאן את תוכן האפיון..." style="min-height:100px;"></textarea>
+      </div>
+      <div id="spec-file-panel" style="display:none;">
+        <label style="display:flex; align-items:center; gap:10px; border:1.5px dashed var(--border-strong); border-radius:var(--radius-sm); padding:16px; cursor:pointer; color:var(--text-secondary); font-size:13px;">
+          <span style="font-size:20px;">📎</span>
+          <span id="spec-file-label">העלי קובץ PDF או Word של האפיון</span>
+          <input type="file" id="spec-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none;" onchange="handleSpecFile(this)">
+        </label>
+        <div id="spec-file-preview" style="display:none; margin-top:10px; font-size:12px; color:var(--text-secondary); padding:8px 10px; background:var(--surface-2); border-radius:var(--radius-sm);"></div>
+      </div>
+      <div id="spec-link-panel" style="display:none;">
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; padding:8px 10px; background:var(--brand-light); border-radius:var(--radius-sm); color:var(--brand);">
+          ⚠️ קישורים ל-SharePoint / OneDrive דורשים הרשאות גישה. הכלי ינסה לאחזר את התוכן – אם לא יצליח, נבקש ממך להדביק ידנית.
+        </div>
+        <input type="text" id="spec-link-input" placeholder="https://makoco.sharepoint.com/... או https://onedrive.live.com/...">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generateSummary()">
+      <div class="spinner" id="summary-spinner"></div>
+      <span id="summary-btn-text">✨ הפק סיכום</span>
+    </button>
+
+    <div class="error-msg" id="summary-error"></div>
+
+    <div class="loading-state" id="summary-loading">
+      <div class="spinner-big"></div>
+      מנתחת את הפגישה...
+    </div>
+
+    <div id="summary-result" style="display:none; margin-top: 20px;">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="font-size:13px; font-weight:600; color:var(--text-secondary);">תוצאה</div>
+          <span class="badge badge-green" id="result-badge">Slack</span>
+        </div>
+        <div class="result-box" id="summary-output"></div>
+        <div class="result-actions">
+          <button class="copy-btn" onclick="copyResult('summary-output', this)">📋 העתק</button>
+          <button class="copy-btn" onclick="clearResult('summary')">🗑️ נקה</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Action Items -->
+  <div id="panel-actions" class="panel">
+    <div class="section-title">חילוץ Action Items</div>
+    <div class="section-desc">הדביקי טקסט מפגישה, מייל, או שיחת Slack – ואני אזהה ואסדר את הפעולות הנדרשות.</div>
+
+    <div class="card">
+      <div class="field-row">
+        <label>טקסט לניתוח</label>
+        <textarea id="actions-input" placeholder="הדביקי כאן: תמלול, סיכום דיון, רשימת החלטות, שרשור מייל – כל טקסט שממנו צריך לחלץ משימות..."></textarea>
+      </div>
+      <div class="field-row">
+        <label>בעלי אחריות רלוונטיים (בחרי מי בדיון)</label>
+        <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">צוות N12</div>
+        <div class="team-grid">
+          <div class="team-member" onclick="toggleMember(this)">גוון <span class="member-role">Product Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">עדי <span class="member-role">Jr. Product Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">ספיר <span class="member-role">QA Engineer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">ענבר <span class="member-role">iOS Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">וסקו <span class="member-role">Android Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אנסטסיה <span class="member-role">Backend Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אירית <span class="member-role">Frontend Developer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">יוסי <span class="member-role">Frontend Developer</span></div>
+        </div>
+        <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:12px; margin-bottom:6px;">גורמים נוספים</div>
+        <div class="team-grid">
+          <div class="team-member" onclick="toggleMember(this)">שי <span class="member-role">Head of Tech Operations</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אלה <span class="member-role">R&D Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">עמרי <span class="member-role">Mobile Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">יוליה <span class="member-role">Frontend Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אנדריי <span class="member-role">Backend Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">רובי <span class="member-role">QA Team Leader</span></div>
+          <div class="team-member" onclick="toggleMember(this)">אריה <span class="member-role">UX/UI Designer</span></div>
+          <div class="team-member" onclick="toggleMember(this)">קרולין <span class="member-role">CMS Manager</span></div>
+          <div class="team-member" onclick="toggleMember(this)">מיטל <span class="member-role">UX Lead</span></div>
+          <div class="team-member" onclick="toggleMember(this)">נטע <span class="member-role">UX Designer</span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generateActions()">
+      <div class="spinner" id="actions-spinner"></div>
+      <span id="actions-btn-text">🔍 חלץ Action Items</span>
+    </button>
+
+    <div class="error-msg" id="actions-error"></div>
+
+    <div class="loading-state" id="actions-loading">
+      <div class="spinner-big"></div>
+      מזהה פעולות ובעלי אחריות...
+    </div>
+
+    <div id="actions-result" style="display:none; margin-top: 20px;">
+      <div class="card">
+        <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:12px;">Action Items שזוהו</div>
+        <div class="result-box" id="actions-output"></div>
+        <div class="result-actions">
+          <button class="copy-btn" onclick="copyResult('actions-output', this)">📋 העתק</button>
+          <button class="copy-btn" onclick="clearResult('actions')">🗑️ נקה</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Release Notes -->
+  <div id="panel-release" class="panel">
+    <div class="section-title">Release Notes</div>
+    <div class="section-desc">מלאי את פרטי הגרסה ואני אנסח הודעה מוכנה למייל ולSlack.</div>
+
+    <div class="card">
+      <div class="field-row">
+        <label>פלטפורמה</label>
+        <div class="platform-chips" id="platform-chips">
+          <div class="platform-chip" onclick="togglePlatform(this)">🌐 Web</div>
+          <div class="platform-chip" onclick="togglePlatform(this)">📱 iOS</div>
+          <div class="platform-chip" onclick="togglePlatform(this)">🤖 Android</div>
+          <div class="platform-chip" onclick="togglePlatform(this)">⚙️ Backend</div>
+          <div class="platform-chip" onclick="togglePlatform(this)">🎨 Studio / CMS</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>מספר גרסה</label>
+        <input type="text" id="version-number" placeholder="לדוגמה: 4.2.1 או 2026.10.3">
+      </div>
+      <div class="field-row">
+        <label>מה השתנה / מה נוסף (Features)</label>
+        <textarea id="release-features" placeholder="כתבי בשורות נפרדות:&#10;- רכיב חדש X&#10;- שיפור ב-Y&#10;- תמיכה ב-Z" style="min-height:100px;"></textarea>
+      </div>
+      <div class="field-row">
+        <label>Bug Fixes (אופציונלי)</label>
+        <textarea id="release-bugs" placeholder="כתבי בשורות נפרדות:&#10;- תיקון קריסה ב-...&#10;- פתרון בעיית ..." style="min-height:80px;"></textarea>
+      </div>
+      <div class="field-row">
+        <label>הערות נוספות (אופציונלי)</label>
+        <input type="text" id="release-notes-extra" placeholder="לדוגמה: Rollout הדרגתי, דרישות מוקדמות...">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="field-row" style="margin-bottom:0;">
+          <label>קישור ל-Release (אופציונלי)</label>
+          <input type="text" id="release-link-url" placeholder="https://mako-tech.atlassian.net/...">
+        </div>
+        <div class="field-row" style="margin-bottom:0;">
+          <label>טקסט הקישור</label>
+          <input type="text" id="release-link-text" placeholder="לדוגמה: Release Notes מלאות">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">פורמט פלט</div>
+      <div class="output-grid">
+        <div class="output-chip selected" onclick="selectReleaseOutput(this, 'both')">שניהם 📧💬</div>
+        <div class="output-chip" onclick="selectReleaseOutput(this, 'email')">מייל 📧</div>
+        <div class="output-chip" onclick="selectReleaseOutput(this, 'slack')">Slack 💬</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generateRelease()">
+      <div class="spinner" id="release-spinner"></div>
+      <span id="release-btn-text">📦 הפק Release Notes</span>
+    </button>
+
+    <div class="error-msg" id="release-error"></div>
+
+    <div class="loading-state" id="release-loading">
+      <div class="spinner-big"></div>
+      מנסחת הודעות שחרור...
+    </div>
+
+    <div id="release-result" style="display:none; margin-top: 20px;">
+      <div id="release-tabs-container">
+        <div class="tabs" id="release-tabs"></div>
+        <div class="card">
+          <div class="result-box" id="release-output"></div>
+          <div class="result-actions">
+            <button class="copy-btn" onclick="copyResult('release-output', this)">📋 העתק</button>
+            <button class="copy-btn" onclick="clearResult('release')">🗑️ נקה</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let currentType = 'daily';
+let currentOutput = 'slack';
+let currentReleaseOutput = 'both';
+let releaseResults = {};
+
+function switchPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.textContent === btn.textContent) b.classList.add('active');
+  });
+}
+
+function selectType(el, type) {
+  document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentType = type;
+}
+
+function selectOutput(el, out) {
+  document.querySelectorAll('#panel-summary .output-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentOutput = out;
+}
+
+function selectReleaseOutput(el, out) {
+  document.querySelectorAll('#panel-release .output-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentReleaseOutput = out;
+}
+
+function toggleMember(el) { el.classList.toggle('selected'); }
+function togglePlatform(el) { el.classList.toggle('selected'); }
+
+let currentSpecTab = 'text';
+let specFileContent = '';
+
+function switchSpecTab(btn, tab) {
+  document.querySelectorAll('#spec-tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentSpecTab = tab;
+  document.getElementById('spec-text-panel').style.display = tab === 'text' ? 'block' : 'none';
+  document.getElementById('spec-file-panel').style.display = tab === 'file' ? 'block' : 'none';
+  document.getElementById('spec-link-panel').style.display = tab === 'link' ? 'block' : 'none';
+}
+
+function handleRecordingFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+  const preview = document.getElementById('recording-preview');
+  document.getElementById('recording-label-text').textContent = file.name;
+  preview.style.display = 'flex';
+  preview.innerHTML = `🎙️ <span><strong>${file.name}</strong> (${sizeMB} MB) – נשמר לשימוש עתידי כשתמיכה בהקלטה תתווסף</span>`;
+}
+
+function handleSpecFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('spec-file-label').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    specFileContent = e.target.result;
+    document.getElementById('spec-file-preview').style.display = 'block';
+    document.getElementById('spec-file-preview').textContent = '✅ הקובץ נטען בהצלחה: ' + file.name;
+  };
+  if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    reader.readAsDataURL(file);
+    specFileContent = '__pdf__';
+    document.getElementById('spec-file-preview').style.display = 'block';
+    document.getElementById('spec-file-preview').textContent = '📄 ' + file.name + ' – PDF יועבר לניתוח';
+  } else {
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+async function getSpecContext() {
+  if (currentSpecTab === 'text') {
+    const t = document.getElementById('spec-text-input').value.trim();
+    return t ? '--- אפיון רלוונטי ---\n' + t : '';
+  }
+  if (currentSpecTab === 'file') {
+    if (!specFileContent) return '';
+    if (specFileContent === '__pdf__') return '--- אפיון צורף כקובץ PDF (לא ניתן לחלץ טקסט ישירות) ---';
+    return '--- אפיון רלוונטי (מקובץ) ---\n' + specFileContent.slice(0, 4000);
+  }
+  if (currentSpecTab === 'link') {
+    const url = document.getElementById('spec-link-input').value.trim();
+    if (!url) return '';
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error();
+      const text = await res.text();
+      const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 4000);
+      return '--- אפיון רלוונטי (מקישור) ---\n' + clean;
+    } catch {
+      return `--- קישור לאפיון (לא ניתן לאחזר תוכן אוטומטית) ---\nקישור: ${url}\nהערה: הגישה לקישור נחסמה. אם רלוונטי, הדביקי את תוכן האפיון ידנית בשדה "הדבקת טקסט".`;
+    }
+  }
+  return '';
+}
+
+function getSelectedMembers(container) {
+  const grid = container || document;
+  return Array.from(grid.querySelectorAll('.team-member.selected')).map(m => m.childNodes[0].textContent.trim());
+}
+
+function getSelectedPlatforms() {
+  return Array.from(document.querySelectorAll('#platform-chips .platform-chip.selected')).map(p => p.textContent.trim());
+}
+
+function setLoading(prefix, isLoading) {
+  const spinner = document.getElementById(prefix + '-spinner');
+  const btnText = document.getElementById(prefix + '-btn-text');
+  const loading = document.getElementById(prefix + '-loading');
+  if (isLoading) {
+    spinner.style.display = 'block';
+    btnText.style.opacity = '0.5';
+    loading.style.display = 'block';
+  } else {
+    spinner.style.display = 'none';
+    btnText.style.opacity = '1';
+    loading.style.display = 'none';
+  }
+}
+
+function showError(prefix, msg) {
+  const el = document.getElementById(prefix + '-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
+}
+
+function getTypeLabel() {
+  const labels = { daily: 'Daily', planning: 'Planning', retro: 'Retrospective', grooming: 'Grooming', technical: 'סשן טכני', other: 'פגישה' };
+  return labels[currentType] || 'פגישה';
+}
+
+async function callClaude(systemPrompt, userContent) {
+  const response = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }]
+    })
+  });
+  if (!response.ok) throw new Error('שגיאת API – ודאי שהשרת פועל (server.js)');
+  const data = await response.json();
+  return data.content.map(b => b.type === 'text' ? b.text : '').join('');
+}
+
+async function generateSummary() {
+  const input = document.getElementById('summary-input').value.trim();
+  if (!input) { showError('summary', 'יש להזין תמלול או תיאור הפגישה'); return; }
+
+  const participants = getSelectedMembers(document.getElementById('panel-summary'));
+  const typeLabel = getTypeLabel();
+  const outputLabel = { slack: 'Slack', email: 'מייל', confluence: 'Confluence' }[currentOutput];
+
+  setLoading('summary', true);
+  document.getElementById('summary-result').style.display = 'none';
+  document.getElementById('summary-error').style.display = 'none';
+
+  const specContext = await getSpecContext();
+
+  const typeInstructions = {
+    daily: 'פגישת Daily Standup. כלול: חסמים שהוזכרו, עדכונים קצרים על התקדמות, פעולות מיידיות.',
+    planning: 'פגישת Sprint Planning. כלול: Sprint Goal, יעדים מרכזיים, חלוקה לפלטפורמות, תלויות וחסמים, נושאים פתוחים.',
+    retro: 'Retrospective. כלול: מה עבד טוב, אתגרים שעלו, Action Items עם בעלי אחריות. שמרי על טון חיובי ולא מאשים.',
+    grooming: 'פגישת Grooming. כלול: Stories שנדונו, הבהרות שהתקבלו, סוגיות שנותרו פתוחות.',
+    technical: 'סשן טכני. כלול: החלטות טכניות, דגשים לפיתוח, פעולות להמשך.',
+    other: 'פגישה כללית. כלול: נושאים שנדונו, החלטות, פעולות להמשך.'
+  };
+
+  const outputInstructions = {
+    slack: 'פורמט Slack: תמציתי, ברור, עם אימוג\'ים מתאימים. ניתן להדביק ישירות.',
+    email: 'פורמט מייל: פתיחה נעימה, חלוקה ברורה לסעיפים, סיום חיובי. ניסוח חצי-רשמי.',
+    confluence: 'פורמט Confluence: כותרות ברורות, עיקרי החלטות, משימות להמשך, שאלות פתוחות. מתאים לתיעוד.'
+  };
+
+  const systemPrompt = `את עוזרת AI של חן, Scrum Master בצוות N12 (מוצר החדשות של קשת ומאקו).
+
+צוות N12: חן (Scrum Master), גוון (Product Manager), עדי (Jr. Product Manager), ספיר (QA), ענבר (Senior iOS), וסקו (Android), אנסטסיה (Backend), אירית (Frontend), יוסי (Frontend).
+
+כללים לסיכום:
+- הצג החלטות, לא שחזור דיונים
+- ניסוח קונקרטי, ללא חזרות
+- ציין בעלי אחריות כשהוגדרו
+- הפרד בין החלטות לשאלות פתוחות
+- אל תמציאי מידע שלא הוזכר
+- ניסוח: מקצועי, חצי-רשמי, אנושי, חיובי, לא מאשים
+- כתבי בעברית
+- שמות טכניים ושדות – השאירי באנגלית`;
+
+  const userContent = `סוג פגישה: ${typeLabel}
+${typeInstructions[currentType]}
+
+פורמט פלט: ${outputLabel}
+${outputInstructions[currentOutput]}
+
+משתתפים: ${participants.length ? participants.join(', ') : 'לא צוינו'}
+${specContext ? '\n' + specContext + '\nאם יש סתירה בין האפיון להחלטות שהתקבלו בפגישה – ציין זאת בסיכום.\n' : ''}
+תמלול/תיאור הפגישה:
+${input}
+
+הפיקי סיכום מוכן להדבקה ישירה ב-${outputLabel}.`;
+
+  try {
+    const result = await callClaude(systemPrompt, userContent);
+    document.getElementById('summary-output').textContent = result;
+    document.getElementById('result-badge').textContent = outputLabel;
+    document.getElementById('result-badge').className = 'badge badge-blue';
+    document.getElementById('summary-result').style.display = 'block';
+  } catch (e) {
+    showError('summary', 'שגיאה בהפקת הסיכום. נסי שוב.');
+  } finally {
+    setLoading('summary', false);
+  }
+}
+
+async function generateActions() {
+  const input = document.getElementById('actions-input').value.trim();
+  if (!input) { showError('actions', 'יש להזין טקסט לניתוח'); return; }
+
+  const members = getSelectedMembers(document.getElementById('panel-actions'));
+  setLoading('actions', true);
+  document.getElementById('actions-result').style.display = 'none';
+
+  const systemPrompt = `את עוזרת AI של חן, Scrum Master בצוות N12.
+צוות: גוון (Product Manager), עדי (Jr. PM), ספיר (QA), ענבר (iOS), וסקו (Android), אנסטסיה (Backend), אירית (Frontend), יוסי (Frontend).
+
+כללים לחילוץ Action Items:
+- זהי רק פעולות שהוגדרו בפועל, לא הצעות
+- ציין בעל אחריות אם הוזכר
+- ציין תאריך יעד אם נאמר
+- ניסוח Action Item: ללא "ל" בהתחלה (למשל "תיאום עם QA" ולא "לתאם עם QA")
+- אל תיצרי משימות מדמיונך
+- אם אין Action Items ברורים, ציני זאת
+- כתבי בעברית`;
+
+  const userContent = `${members.length ? 'משתתפים/רלוונטיים: ' + members.join(', ') + '\n\n' : ''}טקסט לניתוח:
+${input}
+
+חלצי Action Items ברורים בפורמט:
+1. [פעולה] – [בעל אחריות אם ידוע] [תאריך יעד אם נאמר]
+2. ...
+
+אם יש שאלות פתוחות שדורשות הכרעה (לא Action Items), ציני אותן בנפרד.`;
+
+  try {
+    const result = await callClaude(systemPrompt, userContent);
+    document.getElementById('actions-output').textContent = result;
+    document.getElementById('actions-result').style.display = 'block';
+  } catch (e) {
+    showError('actions', 'שגיאה בחילוץ Action Items. נסי שוב.');
+  } finally {
+    setLoading('actions', false);
+  }
+}
+
+async function generateRelease() {
+  const platforms = getSelectedPlatforms();
+  const version = document.getElementById('version-number').value.trim();
+  const features = document.getElementById('release-features').value.trim();
+  const bugs = document.getElementById('release-bugs').value.trim();
+  const extra = document.getElementById('release-notes-extra').value.trim();
+
+  if (!platforms.length) { showError('release', 'יש לבחור לפחות פלטפורמה אחת'); return; }
+  if (!features) { showError('release', 'יש להזין לפחות שינוי אחד'); return; }
+
+  setLoading('release', true);
+  document.getElementById('release-result').style.display = 'none';
+
+  const systemPrompt = `את עוזרת AI של חן, Scrum Master בצוות N12 (מוצר החדשות של קשת ומאקו).
+הפיקי הודעות שחרור גרסה מקצועיות, ברורות וידידותיות.
+כתבי בעברית. שמות טכניים – השאירי באנגלית.
+סגנון: מקצועי, חיובי, לא יבש מדי.`;
+
+  const linkUrl = document.getElementById('release-link-url').value.trim();
+  const linkText = document.getElementById('release-link-text').value.trim();
+  const linkLine = linkUrl ? `קישור ל-Release: ${linkText ? linkText + ' – ' : ''}${linkUrl}` : '';
+
+  const baseContent = `פלטפורמה: ${platforms.join(', ')}
+${version ? 'גרסה: ' + version : ''}
+שינויים: ${features}
+${bugs ? 'Bug Fixes: ' + bugs : ''}
+${extra ? 'הערות: ' + extra : ''}
+${linkLine ? linkLine : ''}`;
+
+  try {
+    if (currentReleaseOutput === 'both' || currentReleaseOutput === 'slack') {
+      const slackResult = await callClaude(systemPrompt, `הפיקי הודעת שחרור גרסה ל-Slack. תמציתי, עם אימוג\'ים, מוכן להדבקה ישירה.\n\n${baseContent}`);
+      releaseResults.slack = slackResult;
+    }
+    if (currentReleaseOutput === 'both' || currentReleaseOutput === 'email') {
+      const emailResult = await callClaude(systemPrompt, `הפיקי הודעת שחרור גרסה למייל. עם שורת נושא, פתיחה מקצועית, חלוקה לסעיפים, סיום נעים.\n\n${baseContent}`);
+      releaseResults.email = emailResult;
+    }
+
+    renderReleaseTabs();
+    document.getElementById('release-result').style.display = 'block';
+  } catch (e) {
+    showError('release', 'שגיאה בהפקת Release Notes. נסי שוב.');
+  } finally {
+    setLoading('release', false);
+  }
+}
+
+function renderReleaseTabs() {
+  const tabsEl = document.getElementById('release-tabs');
+  tabsEl.innerHTML = '';
+  let firstKey = null;
+
+  if (releaseResults.email) {
+    if (!firstKey) firstKey = 'email';
+    tabsEl.innerHTML += `<div class="tab active" onclick="switchReleaseTab(this, 'email')">📧 מייל</div>`;
+  }
+  if (releaseResults.slack) {
+    if (!firstKey) firstKey = 'slack';
+    const active = !releaseResults.email ? 'active' : '';
+    tabsEl.innerHTML += `<div class="tab ${active}" onclick="switchReleaseTab(this, 'slack')">💬 Slack</div>`;
+  }
+
+  if (firstKey) {
+    document.getElementById('release-output').textContent = releaseResults[firstKey];
+  }
+}
+
+function switchReleaseTab(el, key) {
+  document.querySelectorAll('#release-tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('release-output').textContent = releaseResults[key] || '';
+}
+
+function copyResult(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ הועתק!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 העתק';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function clearResult(prefix) {
+  document.getElementById(prefix + '-result').style.display = 'none';
+  const input = document.getElementById(prefix + '-input');
+  if (input) input.value = '';
+  if (prefix === 'release') {
+    releaseResults = {};
+    document.getElementById('version-number').value = '';
+    document.getElementById('release-features').value = '';
+    document.getElementById('release-bugs').value = '';
+    document.getElementById('release-notes-extra').value = '';
+    document.getElementById('release-link-url').value = '';
+    document.getElementById('release-link-text').value = '';
+    document.querySelectorAll('.platform-chip').forEach(p => p.classList.remove('selected'));
+  }
+}
+</script>
+</body>
+</html>
